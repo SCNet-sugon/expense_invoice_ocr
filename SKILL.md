@@ -1,6 +1,6 @@
 ---
-name: scnet-ocr
-description: 将图片中的文字、身份证、银行卡、营业执照、发票等信息识别并提取出来。本技能应在用户需要 OCR 识别图片中的文字，或识别身份证、银行卡、营业执照、增值税发票、出租车票、火车票、航空行程单、机动车销售统一发票时使用。
+name: expense_invoice_ocr
+description: 支持识别企业财务报销场景的常见票据，包括增值税发票、增值税卷票、出租车发票、火车票、航空电子客票行程单、机动车销售统一发票、定额发票、过路过桥费发票、医疗发票、税收完税证明、船票、非税票据、通用机打发票、汽车票识别。
 version: 1.0.0
 author: SCNet
 license: MIT
@@ -20,10 +20,7 @@ output: 结构化的 JSON 数据，包含识别结果和置信度
 
 ## 功能特性
 
-- **通用文字识别**：提取图片中的全部文字，支持横竖版及坐标定位。
-- **个人证照**：识别大陆身份证（姓名、身份证号等）、银行卡（卡号、银行等）。
-- **行业资质**：识别营业执照（统一社会信用代码、企业名称等）。
-- **财务票据**：覆盖增值税发票、出租车票、火车票、航空行程单、机动车销售统一发票，自动提取关键字段。
+- **财务票据**：覆盖增值税发票、增值税卷票、出租车发票、火车票、航空电子客票行程单、机动车销售统一发票、定额发票、过路过桥费发票、医疗发票、税收完税证明、船票、非税票据、通用机打发票、汽车票识别，自动提取关键字段。
 
 ## 前置配置
 
@@ -63,13 +60,13 @@ Token 过期后调用会返回 401 或 403 错误。更新方法：重新申请 
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
-| ocrType | string | 是 | 识别类型枚举。必须为以下之一：<br>• GENERAL（通用文字）<br>• ID_CARD（大陆身份证）<br>• BANK_CARD（银行卡）<br>• BUSINESS_LICENSE（营业执照）<br>• VAT_INVOICE（增值税发票）<br>• VAT_ROLL_INVOICE（增值税卷票）<br>• TAXI_INVOICE（出租车发票）<br>• TRAIN_TICKET（火车票）<br>• AIRPORT_TICKET（航空运输电子客票行程单）<br>• VEHICLE_SALE_INVOICE（机动车销售统一发票） |
+| ocrType | string | 是 | 识别类型枚举。必须为以下之一：<br>• VAT_INVOICE（增值税发票）<br>• VAT_ROLL_INVOICE（增值税卷票）<br>• TAXI_INVOICE（出租车发票）<br>• TRAIN_TICKET（火车票）<br>• AIRPORT_TICKET（航空运输电子客票行程单）<br>• VEHICLE_SALE_INVOICE（机动车销售统一发票）<br>• QUOTA_INVOICE（定额发票）<br>• TOLL_INVOICE（过路过桥费发票）<br>• MEDICAL_INVOICE（医疗发票）<br>• TAX_PAYMENT_CERTIFICATE（税收完税证明）<br>• NON_TAX_INVOICE（非税票据）<br>• GENERAL_MACHINE_INVOICE（通用机打发票）<br>• SHIP_TICKET（船票）<br>• BUS_TICKET（汽车票） |
 | filePath | string | 是 | 待识别图片的本地绝对路径。支持 jpg、png、pdf 等常见格式。 |
 
 ### 命令行调用示例
 
 ```bash
-python .claude/skills/sugon-scnet-ocr/scripts/main.py VAT_INVOICE /path/to/invoice.jpg
+python .claude/skills/expense_invoice_ocr/scripts/main.py VAT_INVOICE /path/to/invoice.jpg
 ```
 
 ### 在 AI 对话中使用
@@ -81,6 +78,10 @@ python .claude/skills/sugon-scnet-ocr/scripts/main.py VAT_INVOICE /path/to/invoi
 - “OCR 这个图片里的文字，图片在 /Users/name/Desktop/text.png”
 
 AI 会根据 description 中的关键词自动触发本技能。
+
+### AI 调用建议
+为避免触发 API 速率限制（10 QPS），请串行调用本技能，即等待前一个识别完成后再发起下一个请求。
+如果使用 OpenClaw 的 exec 工具，建议设置 timeout 或 yieldMs 参数，让命令同步执行，避免多个命令同时运行导致并发。
 
 ### 配置选项
 
@@ -97,6 +98,12 @@ AI 会根据 description 中的关键词自动触发本技能。
 - 识别结果位于 data[0].result[0].elements 中，具体字段取决于 ocrType。
 - 错误信息：如果发生错误，会输出以 `错误:` 开头的友好提示。
 
+### 注意事项
+
+- 本技能调用的 OCR API 有 10 QPS 的速率限制。
+- 如果遇到 429 错误，请等待 2-3 秒后重试，不要连续发起请求。
+- 建议在调用前确保图片已准备就绪，避免因网络问题导致重复调用。
+
 ### 故障排除
 
 | 问题 | 解决方案 |
@@ -107,5 +114,5 @@ AI 会根据 description 中的关键词自动触发本技能。
 | 网络连接失败 | 检查网络连接或防火墙设置 |
 | 不支持的文件类型 | 确保文件扩展名为允许的类型（参考 API 文档） |
 | 401/403/Unauthorized | Token 无效或过期，重新申请并配置 |
-
+| 429 Too Many Requests | 请求过于频繁，技能会自动等待并重试（最多 3 次）。若持续失败，请降低调用频率或联系服务方提高限额。 |
 
