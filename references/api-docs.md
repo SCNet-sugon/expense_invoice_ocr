@@ -16,22 +16,66 @@
 ## 响应结构
 ```json
 {
-  "code": "0",          // 应答码，0 表示成功
-  "msg": "success",     // 应答信息
-  "data": [             // 应答数据体
-    {
-      "result": [        // 票据识别结果数组
+    "code": "0",
+    "msg": "success",
+    "data":[ 
         {
-          "confidence": "0.98",
-          "coordinate": [3,584,3,1,412,1,412,584],
-          "elements": { ... },  // 核心识别字段，因类型而异
-          "isCopy": "0",
-          "page": 0,
-          "printOffset": "0"
+            "traceId": "202604010000017",
+            "originalFilename": "增值税发票示例.jpg",
+            "cosPath": "/ocr/202604/01/增值税发票示例.jpg",
+            "result": [
+                {
+                    "status": 200,
+                    "originFilename": "增值税发票示例.jpg",
+                    "cosPath": "/ocr/202604/01/增值税发票示例.jpg",
+                    "fileIndex": 1,
+                    "cutIndex": 0,
+                    "coordinate": [],
+                    "classifyCode": "VAT_INVOICE",
+                    "confidence": 0.996,
+                    "elements": {
+                      "title": "厦门增值税专用发票",
+                      "invoiceCode": "3502210221",
+                      "invoiceNo": "04727777",
+                      "printedCode": "3502210221",
+                      "printedNo": "04727777",
+                      "checkCode": "",
+                      "machineCode": "499099900999",
+                      "invoiceDate": "20220707",
+                      "passwordArea": "03+6//8820/+688-+3>5<45-56>703+6//8820/+688-+3>5<45-56>703+6//8820/+688-+3>5<45-56>703+6//8820/+688-+3>5<45-56>7",
+                      "buyerName": "中国思味银行股份有限公司厦门市分行",
+                      "buyerCode": "913502008520082008",
+                      "buyerAddressAndPhone": "厦门市思明区思明道05号05922105922",
+                      "buyerBankAndAccount": "厦门分行营业部35350035003500013500",
+                      "sellerName": "中国厦门厦门有限公司厦门分公司",
+                      "sellerCode": "91350200720072007D",
+                      "sellerAddressAndPhone": "厦门市思明路25号10000",
+                      "sellerBankAndAccount": "思明厦门思明支行4100020009200020009",
+                      "preTaxTotalAmount": "39622.64",
+                      "totalTaxAmount": "2377.36",
+                      "totalAmountUpper": "肆万贰仟圆整",
+                      "totalAmountLower": "42000.00",
+                      "invoiceForm": "第三联:发票联",
+                      "remarks": "备注示例",
+                      "payee": "张三",
+                      "checker": "李四",
+                      "drawer": "李明",
+                      "goodsDetails": {
+                        "goodsName": "*电信服务*增值电信服务",
+                        "specification": "无",
+                        "unit": "项",
+                        "quantity": "1",
+                        "unitPrice": "39622.64",
+                        "itemAmount": "39622.64",
+                        "taxRate": "6%",
+                        "taxAmount": "2377.36"
+                      }
+                    },
+                    "stamps": []
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }
 ```
 ## 错误码
