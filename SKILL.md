@@ -1,7 +1,7 @@
 ---
 name: expense_invoice_ocr
 description: 支持识别企业财务报销场景的常见票据，包括增值税发票、增值税卷票、出租车发票、火车票、航空电子客票行程单、机动车销售统一发票、定额发票、过路过桥费发票、医疗发票、税收完税证明、船票、非税票据、通用机打发票、汽车票识别。
-version: 1.0.4
+version: 1.0.5
 author: SCNet
 license: MIT
 tags:
@@ -11,7 +11,8 @@ tags:
   - 文字提取
 required_env_vars:
   - SCNET_API_KEY
-  - SCNET_API_BASE  # 可选，但有默认值
+optional_env_vars:
+  - SCNET_API_BASE
 primary_credential: SCNET_API_KEY
 dependencies:
   - python3
@@ -73,7 +74,7 @@ Token 过期后调用会返回 401 或 403 错误。更新方法：重新申请 
 
 | 参数名 | 类型 | 必填 | 描述 |
 |--------|------|------|------|
-| ocrType | string | 是 | 识别类型枚举。必须为以下之一：<br>• VAT_INVOICE（增值税发票）<br>• VAT_ROLL_INVOICE（增值税卷票）<br>• TAXI_INVOICE（出租车发票）<br>• TRAIN_TICKET（火车票）<br>• AIRPORT_TICKET（航空运输电子客票行程单）<br>• VEHICLE_SALE_INVOICE（机动车销售统一发票）<br>• QUOTA_INVOICE（定额发票）<br>• TOLL_INVOICE（过路过桥费发票）<br>• MEDICAL_INVOICE（医疗发票）<br>• TAX_PAYMENT_CERTIFICATE（税收完税证明）<br>• NON_TAX_INVOICE（非税票据）<br>• GENERAL_MACHINE_INVOICE（通用机打发票）<br>• SHIP_TICKET（船票）<br>• BUS_TICKET（汽车票） |
+| ocrType | string | 是 | 识别类型枚举。必须为以下之一：<br>• VAT_INVOICE（增值税发票）<br>• VAT_ROLL_INVOICE（增值税卷票）<br>• TAXI_INVOICE（出租车发票）<br>• TRAIN_TICKET（火车票）<br>• AIRPORT_TICKET（航空运输电子客票行程单）<br>• VEHICLE_SALE_INVOICE（机动车销售统一发票）<br>• QUOTA_INVOICE（定额发票）<br>• TOLL_INVOICE（过路过桥费发票）<br>• MEDICAL_INVOICE（医疗发票）<br>• TAX_CERTIFICATE（税收完税证明）<br>• NON_TAX_BILL（非税票据）<br>• GENERAL_MACHINE_INVOICE（通用机打发票）<br>• SHIP_TICKET（船票）<br>• BUS_TICKET（汽车票） |
 | filePath | string | 是 | 待识别图片的本地绝对路径。支持 jpg、png、pdf 等常见格式。 |
 
 ### 命令行调用示例
