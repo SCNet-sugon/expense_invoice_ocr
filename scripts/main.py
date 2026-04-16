@@ -32,15 +32,18 @@ def load_config():
             "\n===============================================\n"
             "Scnet OCR 配置文件不存在\n"
             "===============================================\n"
-            "请按以下步骤配置：\n\n"
+            "⚠️ 安全警告：切勿在聊天中直接粘贴 API Key！\n\n"
+            "请按以下步骤安全配置：\n\n"
             "1. 申请 Scnet API Token：\n"
             "   访问 https://www.scnet.cn 注册并获取密钥\n\n"
-            "2. 配置 Token：\n"
-            "   告诉 AI：\"帮我配置 Scnet OCR，Token 是：xxx\"\n\n"
-            "   或手动配置：\n"
-            f"   cp {SKILL_ROOT}/config/.env.example {ENV_FILE}\n"
-            f"   nano {ENV_FILE}\n"
-            "   设置 SCNET_API_KEY=你的密钥\n"
+            "2. 配置 Token（选择一种方式）：\n"
+            "   a) 环境变量（推荐）：\n"
+            "      export SCNET_API_KEY='你的密钥'\n"
+            "   b) 配置文件：\n"
+            f"      mkdir -p {SKILL_ROOT}/config\n"
+            f"      echo 'SCNET_API_KEY=你的密钥' > {ENV_FILE}\n"
+            f"      chmod 600 {ENV_FILE}\n"
+            "\n配置完成后重新运行。"
         )
         sys.exit(error_msg)
 
@@ -79,7 +82,7 @@ def recognize_with_retry(ocr_type, file_path, config, retry_count=0):
     """
     带重试机制的 OCR 识别函数。
     当遇到 429 (Too Many Requests) 时，自动等待后重试。
-    """
+    调用 Scnet OCR API 进行识别"""
     api_base = config['SCNET_API_BASE']
     api_key = config['SCNET_API_KEY']
     url = f"{api_base}/ocr/recognize"
@@ -109,7 +112,6 @@ def recognize_with_retry(ocr_type, file_path, config, retry_count=0):
             response = requests.post(url, headers=headers, data=data, files=files, timeout=60)
     except Exception as e:
         sys.exit(f"网络请求失败: {str(e)}")
-
     # --- 新增：处理 429 速率限制 ---
     if response.status_code == 429:
         if retry_count >= MAX_RETRIES:
@@ -126,13 +128,13 @@ def recognize_with_retry(ocr_type, file_path, config, retry_count=0):
             pass
 
         # 输出友好提示到 stderr（不影响 JSON 输出）
-        sys.stderr.write(f"⚠️ 请求过于频繁，等待 {retry_after} 秒后重试... (第 {retry_count+1}/{MAX_RETRIES} 次重试)\n")
+        sys.stderr.write(
+            f"⚠️ 请求过于频繁，等待 {retry_after} 秒后重试... (第 {retry_count + 1}/{MAX_RETRIES} 次重试)\n")
         time.sleep(retry_after)
 
         # 递归重试
         return recognize_with_retry(ocr_type, file_path, config, retry_count + 1)
     # ---------------------------------
-
     if response.status_code != 200:
         # 针对 401/403 给出明确提示
         if response.status_code in (401, 403):
@@ -141,10 +143,14 @@ def recognize_with_retry(ocr_type, file_path, config, retry_count=0):
                 "Scnet API Token 无效或已过期\n"
                 "===============================================\n"
                 f"HTTP 状态码: {response.status_code}\n\n"
-                "解决方法：\n"
-                "1. 访问 https://www.scnet.cn 重新申请 Token\n"
-                "2. 告诉 AI：\"我的 Scnet Token 过期了，新的 Token 是：xxx\"\n"
-                f"   或手动更新 {ENV_FILE}\n"
+                "⚠️ 安全警告：请勿在聊天中直接粘贴 API Key！\n\n"
+                "解决方法（二选一）：\n"
+                "1. 环境变量方式：\n"
+                "   export SCNET_API_KEY='你的新Token'\n"
+                "2. 配置文件方式：\n"
+                f"   echo 'SCNET_API_KEY=你的新Token' > {ENV_FILE}\n"
+                f"   chmod 600 {ENV_FILE}\n"
+                "\n更新后重新运行。"
             )
             sys.exit(error_msg)
         else:
@@ -160,13 +166,15 @@ def recognize_with_retry(ocr_type, file_path, config, retry_count=0):
         sys.exit(f"API 错误 {result.get('code')}: {result.get('msg')}")
 
     # 输出 data 部分（识别结果）
+    #print(json.dumps(result.get('data', []), ensure_ascii=False, indent=2))
+    # 获取 data 部分
     data = result.get('data', [])
 
     # 移除每个识别项中的 confidence 字段（优化点）
     for file_result in data:
         if 'result' in file_result and isinstance(file_result['result'], list):
             for item in file_result['result']:
-                item.pop('confidence', None)
+                item.pop('confidence', None)  # 删除 confidence，不存在则忽略
 
     # 输出处理后的数据
     print(json.dumps(data, ensure_ascii=False, indent=2))

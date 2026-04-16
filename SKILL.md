@@ -1,7 +1,7 @@
 ---
 name: expense_invoice_ocr
 description: 支持识别企业财务报销场景的常见票据，包括增值税发票、增值税卷票、出租车发票、火车票、航空电子客票行程单、机动车销售统一发票、定额发票、过路过桥费发票、医疗发票、税收完税证明、船票、非税票据、通用机打发票、汽车票识别。
-version: 1.0.3
+version: 1.0.4
 author: SCNet
 license: MIT
 tags:
@@ -86,9 +86,7 @@ Token 过期后调用会返回 401 或 403 错误。更新方法：重新申请 
 
 用户可以说：
 
-- “帮我识别这张身份证，图片在 /Users/name/Downloads/id.jpg”
 - “提取这张发票的信息，路径是 /Users/name/Downloads/fapiao.png”
-- “OCR 这个图片里的文字，图片在 /Users/name/Desktop/text.png”
 
 AI 会根据 description 中的关键词自动触发本技能。
 
